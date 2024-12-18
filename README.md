@@ -1,0 +1,5 @@
+- webmd-supplement-index-scraper.py: Stores the URLs of all vitamins and supplements on WebMD in the CSV file "webmd_supplement_urls.csv"
+- webmd-ratings-scraper.py: Goes through the URLs in the CSV file and gets the "Overall Rating" and "Number of Reviews" for each, and stores them in a CSV file ("webmd_supplement_ratings.csv)
+- webmd-analysis.py: Does some basic statistical analysis of the data in webmd_supplement_ratings.csv
+- webmd-scraper-chanca-piedra.py: Scrapes all WebMD reviews of chanca piedra and stores them in chanca_piedra_reviews.csv
+- webmd-scraper-all-supplements.py: Is a generalization of the above script that also scrapes reviews of other supplements (but failed for Hydrochlorothiazide and Flomax since the HTML structure is different for those; something to fix in the future)
