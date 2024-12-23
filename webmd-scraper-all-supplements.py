@@ -147,41 +147,55 @@ def save_to_csv(reviews: list, filename: str = 'webmd_reviews.csv'):
 def main():
     # Define targets
     targets = [
+        # ReviewTarget(
+        #     name="Chanca Piedra",
+        #     base_url="https://reviews.webmd.com/vitamins-supplements/ingredientreview-441-chanca-piedra",
+        #     num_pages=6,
+        #     condition_id="",
+        #     is_supplement=True
+        # ),
+        # ReviewTarget(
+        #     name="Flomax",
+        #     base_url="https://reviews.webmd.com/drugs/drugreview-4154-flomax-oral",
+        #     num_pages=2,
+        #     condition_id="4139",
+        #     is_supplement=False
+        # ),
+        # ReviewTarget(
+        #     name="Hydrochlorothiazide",
+        #     base_url="https://reviews.webmd.com/drugs/drugreview-5310-hydrochlorothiazide-oral",
+        #     num_pages=2,
+        #     condition_id="2281",
+        #     is_supplement=False
+        # ),
+        # ReviewTarget(
+        #     name="Ashwagandha",
+        #     base_url="https://reviews.webmd.com/vitamins-supplements/ingredientreview-953-ashwagandha",
+        #     num_pages=15,
+        #     condition_id="",
+        #     is_supplement=True
+        # ),
+        # ReviewTarget(
+        #     name="Melatonin",
+        #     base_url="https://reviews.webmd.com/vitamins-supplements/ingredientreview-940-melatonin",
+        #     num_pages=5,
+        #     condition_id="1310",
+        #     is_supplement=True
+        # ),
         ReviewTarget(
-            name="Chanca Piedra",
-            base_url="https://reviews.webmd.com/vitamins-supplements/ingredientreview-441-chanca-piedra",
-            num_pages=6,
+            name="Black Seed",
+            base_url="https://reviews.webmd.com/vitamins-supplements/ingredientreview-901-black-seed",
+            num_pages=5,
             condition_id="",
             is_supplement=True
         ),
         ReviewTarget(
-            name="Flomax",
-            base_url="https://reviews.webmd.com/drugs/drugreview-4154-flomax-oral",
-            num_pages=2,
-            condition_id="4139",
-            is_supplement=False
-        ),
-        ReviewTarget(
-            name="Hydrochlorothiazide",
-            base_url="https://reviews.webmd.com/drugs/drugreview-5310-hydrochlorothiazide-oral",
-            num_pages=2,
-            condition_id="2281",
-            is_supplement=False
-        ),
-        ReviewTarget(
-            name="Ashwagandha",
-            base_url="https://reviews.webmd.com/vitamins-supplements/ingredientreview-953-ashwagandha",
-            num_pages=15,
+            name="Garcinia",
+            base_url="https://reviews.webmd.com/vitamins-supplements/ingredientreview-818-GARCINIA",
+            num_pages=49,
             condition_id="",
             is_supplement=True
         ),
-        ReviewTarget(
-            name="Melatonin",
-            base_url="https://reviews.webmd.com/vitamins-supplements/ingredientreview-940-melatonin",
-            num_pages=10,
-            condition_id="1310",
-            is_supplement=True
-        )
     ]
     
     scraper = WebMDReviewScraper()
@@ -194,7 +208,7 @@ def main():
         print(f"Completed {target.name} - found {len(reviews)} reviews")
         time.sleep(2)  # Extra pause between different supplements
     
-    save_to_csv(all_reviews, 'webmd_all_reviews.csv')
+    save_to_csv(all_reviews, 'webmd_all_reviews_black_seed_garcinia.csv')
 
 if __name__ == "__main__":
     main()
