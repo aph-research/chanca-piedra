@@ -4,3 +4,8 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 .github/workflows/playwright.yml
+.DS_Store
+tests/amazonAuth.json
+tests/amazon-diagnostics.spec.ts
+Amazon scraped.csv
+Amazon original.csv
