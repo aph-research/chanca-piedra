@@ -9,3 +9,4 @@ tests/amazonAuth.json
 tests/amazon-diagnostics.spec.ts
 Amazon scraped.csv
 Amazon original.csv
+csv-files/
