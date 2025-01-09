@@ -13,3 +13,5 @@ csv-files/
 tests/reddit-auth.spec.ts
 tests/reddit-scraper-retry.spec.ts
 /tests/csv files before automation
+tests/reddit_comments_progress.csv
+tests/redditAuth.json
