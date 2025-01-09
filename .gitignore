@@ -12,3 +12,4 @@ Amazon original.csv
 csv-files/
 tests/reddit-auth.spec.ts
 tests/reddit-scraper-retry.spec.ts
+/tests/csv files before automation
