@@ -12,6 +12,59 @@ interface RedditComment {
   score?: string;
 }
 
+interface SearchConfig {
+  keywords: string[];
+  searchUrl: string;
+}
+
+// Define all search configurations
+const searchConfigs: SearchConfig[] = [
+  // {
+  //   keywords: ['chanca', 'chanka'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=chanca+piedra&sort=relevance'
+  // },
+  // {
+  //   keywords: ['allopurinol', 'allopurinal'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=allopurinol&sort=relevance'
+  // },
+  // {
+  //   keywords: ['flomax', 'flowmax'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=flomax&sort=comments'
+  // },
+  // {
+  //   keywords: ['tamsulosin'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=tamsulosin&sort=relevance'
+  // },
+  // {
+  //   keywords: ['potassium'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=%22Potassium+Citrate%22&sort=relevance'
+  // },
+  {
+    keywords: ['hydrochlorothiazide', 'HCTZ'],
+    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=Hydrochlorothiazide&sort=relevance'
+  },
+  {
+    keywords: ['garcinia'],
+    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=garcinia&sort=relevance'
+  },
+  {
+    keywords: ['hydroxycitric', 'hydroxycitrate'],
+    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=Hydroxycitric&sort=relevance'
+  },
+  {
+    keywords: ['rowatinex'],
+    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=rowatinex&sort=relevance'
+  },
+  {
+    keywords: ['phosfood'],
+    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=phosfood&sort=relevance'
+  },
+  {
+    keywords: ['black'],
+    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=%22Black+seed%22&sort=relevance'
+  }
+];
+
 async function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -23,11 +76,10 @@ async function tryWithRetry(fn: () => Promise<any>, maxRetries = 3, baseDelay = 
     } catch (error) {
       if (attempt === maxRetries) throw error;
       
-      // If it's a rate limit error, wait longer
       const isRateLimit = error.message.includes('ERR_HTTP_RESPONSE_CODE_FAILURE');
       const waitTime = isRateLimit ? 
-        baseDelay * Math.pow(2, attempt - 1) : // Exponential backoff for rate limits
-        baseDelay; // Regular delay for other errors
+        baseDelay * Math.pow(2, attempt - 1) :
+        baseDelay;
       
       console.log(`Attempt ${attempt} failed. Waiting ${waitTime/1000} seconds before retry...`);
       await delay(waitTime);
@@ -35,21 +87,9 @@ async function tryWithRetry(fn: () => Promise<any>, maxRetries = 3, baseDelay = 
   }
 }
 
-// const keywords = ['chanca', 'chanka'];
-// const keywords = ['allopurinol', 'allopurinal'];
-// const keywords = ['flomax', 'flowmax'];
-// const keywords = ['tamsulosin'];
-// const keywords = ['potassium'];
-// const keywords = ['hydrochlorothiazide', 'HCTZ'];
-// const keywords = ['garcinia'];
-// const keywords = ['hydroxycitric', 'hydroxycitrate'];
-// const keywords = ['rowatinex'];
-const keywords = ['phosfood'];
-// const keywords = ['black'];
-
-function containsKeywords(text: string): boolean {
+function containsKeywords(text: string, keywords: string[]): boolean {
   const lowerText = text.toLowerCase();
-  return keywords.some(keyword => lowerText.includes(keyword));
+  return keywords.some(keyword => lowerText.includes(keyword.toLowerCase()));
 }
 
 const headers = ['postTitle', 'postUrl', 'author', 'date', 'text', 'isOriginalPost', 'score'];
@@ -85,32 +125,7 @@ function saveToCSV(comments: RedditComment[], filename: string) {
   fs.writeFileSync(outputFile, csvRows.join('\n'));
   console.log(`Saved ${comments.length} comments to ${outputFile}`);
 }
-function appendToCSV(comments: RedditComment[], filename: string) {
-  // Clean and normalize text content
-  const cleanComments = comments.map(comment => ({
-    ...comment,
-    text: comment.text
-      .replace(/\r?\n|\r/g, ' ') // Replace newlines with spaces
-      .replace(/\s+/g, ' ')      // Normalize multiple spaces
-      .trim()
-  }));
 
-  const csvRows = cleanComments.map(comment => 
-    headers.map(header => {
-      let content = String(comment[header as keyof RedditComment] || '');
-      content = content
-        .replace(/"/g, '""')         // Escape quotes
-        .replace(/\r?\n|\r/g, ' ')   // Replace newlines
-        .replace(/\s+/g, ' ')        // Normalize spaces
-        .trim();
-      return `"${content}"`;
-    }).join(',')
-  );
-
-  const outputFile = path.join(__dirname, filename);
-  fs.appendFileSync(outputFile, '\n' + csvRows.join('\n'));
-  console.log(`Appended ${comments.length} comments to ${outputFile}`);
-}
 async function scrollForMoreResults(page: any) {
   let previousHeight = 0;
   let noNewContentCount = 0;
@@ -138,7 +153,7 @@ async function scrollForMoreResults(page: any) {
     await page.waitForTimeout(2000);
     
     // Log current number of results
-    const resultCount = await page.$eval('a[data-testid="post-title-text"]', 
+    const resultCount = await page.$$eval('a[data-testid="post-title-text"]', 
       (elements: any[]) => elements.length);
     console.log(`Current number of results: ${resultCount}`);
   }
@@ -167,35 +182,32 @@ async function expandAllComments(page: any) {
   }
 }
 
-async function extractCommentsFromPost(page: any, postUrl: string, postTitle: string): Promise<RedditComment[]> {
+async function extractCommentsFromPost(
+  page: any, 
+  postUrl: string, 
+  postTitle: string, 
+  keywords: string[]
+): Promise<RedditComment[]> {
   const comments: RedditComment[] = [];
   console.log(`Processing post: ${postTitle}`);
   
   try {
     await page.goto(postUrl);
+    await page.waitForTimeout(2000);
     
-    // First check if there are any comments
-    await page.waitForTimeout(2000); // Give the page a moment to load
-    
-    // Check if there are any comments
     const hasComments = await page.$('shreddit-comment');
     
     if (hasComments) {
-      // Wait for comments to fully load and expand them
       await page.waitForSelector('shreddit-comment', { timeout: 5000 });
       await expandAllComments(page);
     } else {
       console.log('No comments found in this post');
     }
 
-    // Check if the original post content contains the keywords
     try {
       const postContent = await page.evaluate(() => {
-        // Get post content
         const textBodyDiv = document.querySelector('div[slot="text-body"]');
         const postTextDiv = textBodyDiv?.querySelector('div[id$="-post-rtjson-content"]');
-        
-        // Get post metadata from the shreddit-post element
         const post = document.querySelector('shreddit-post');
         const title = post?.getAttribute('post-title') || '';
         
@@ -210,11 +222,8 @@ async function extractCommentsFromPost(page: any, postUrl: string, postTitle: st
           date: post?.getAttribute('created-timestamp') || ''
         };
       });
-      
-      console.log('Found post content:', postContent.text); // Debug log
-      console.log('Contains keywords?', containsKeywords(postContent.text)); // Debug log
 
-      if (containsKeywords(postContent.text)) {
+      if (containsKeywords(postContent.text, keywords)) {
         comments.push({
           postTitle,
           postUrl,
@@ -228,7 +237,6 @@ async function extractCommentsFromPost(page: any, postUrl: string, postTitle: st
       console.error(`Error extracting post content from ${postUrl}:`, error);
     }
 
-    // Extract all comments
     const commentElements = await page.$$('shreddit-comment');
     
     for (const commentEl of commentElements) {
@@ -244,7 +252,7 @@ async function extractCommentsFromPost(page: any, postUrl: string, postTitle: st
         };
       });
       
-      if (containsKeywords(commentData.text)) {
+      if (containsKeywords(commentData.text, keywords)) {
         comments.push({
           postTitle,
           postUrl,
@@ -260,39 +268,24 @@ async function extractCommentsFromPost(page: any, postUrl: string, postTitle: st
     console.error(`Error processing post ${postUrl}:`, error);
   }
 
-  return comments;  // Make sure we always return the comments array
+  return comments;
 }
 
-test('scrape reddit comments', async ({ browser }) => {
-  test.setTimeout(4800000); // 80 minutes
+async function processSearchConfig(
+  page: any, 
+  config: SearchConfig
+): Promise<void> {
+  console.log(`\n=== Processing search for keywords: ${config.keywords.join(', ')} ===\n`);
   
-  const context = await browser.newContext({
-    storageState: path.join(__dirname, 'redditAuth.json')  // Use the saved auth state
-  });
-  const page = await context.newPage();
-
   let allComments: RedditComment[] = [];
+  const progressFilename = `reddit_comments_progress_${config.keywords[0]}.csv`;
+  const finalFilename = `reddit_comments_final_${config.keywords[0]}.csv`;
   
   try {
-    // Navigate to the search results
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=chanca+piedra&sort=relevance');
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=allopurinol&sort=relevance');
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=flomax&sort=comments');
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=tamsulosin&sort=relevance');
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=%22Potassium+Citrate%22&sort=relevance');
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=Hydrochlorothiazide&sort=relevance');
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=rowatinex&sort=relevance');
-    await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=phosfood&sort=relevance');
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=garcinia&sort=relevance');
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=Hydroxycitric&sort=relevance');
-    // await page.goto('https://www.reddit.com/r/KidneyStones/search/?q=%22Black+seed%22&sort=relevance');
-
+    await page.goto(config.searchUrl);
     await page.waitForSelector('a[data-testid="post-title-text"]', { timeout: 30000 });
-
-    // Scroll to load more search results
     await scrollForMoreResults(page);
 
-    // Get all post URLs and titles
     const posts = await page.$$eval('a[data-testid="post-title-text"]',
       (elements: any[]) => elements.map(el => ({
         url: el.href,
@@ -301,36 +294,47 @@ test('scrape reddit comments', async ({ browser }) => {
 
     console.log(`Found ${posts.length} posts to process`);
 
-    // Process each post
     for (const post of posts) {
       try {
         const comments = await tryWithRetry(() => 
-          extractCommentsFromPost(page, post.url, post.title)
+          extractCommentsFromPost(page, post.url, post.title, config.keywords)
         );
         allComments.push(...comments);
         console.log(`Found ${comments.length} relevant comments in post`);
         
-        // Save progress after each post
-        saveToCSV(allComments, 'reddit_comments_progress.csv');
-        
-        // Wait between requests to avoid rate limiting
-        await delay(3000); // Increased base delay between requests
+        saveToCSV(allComments, progressFilename);
+        await delay(3000);
       } catch (error) {
         console.error(`Error processing post ${post.url} after all retries:`, error);
         continue;
       }
     }
 
-    // Save final results
-    saveToCSV(allComments, 'reddit_comments_final_' + keywords[0] + '.csv');
-    console.log(`Finished processing all posts. Total comments found: ${allComments.length}`);
+    saveToCSV(allComments, finalFilename);
+    console.log(`Finished processing search for ${config.keywords[0]}. Total comments found: ${allComments.length}`);
 
   } catch (error) {
     console.error('Fatal error:', error);
-    // Save whatever we have in case of fatal error
     if (allComments.length > 0) {
-      saveToCSV(allComments, 'reddit_comments_final_${keywords[0]}.csv');
-      /// appendToCSV(allComments, `reddit_comments_final_${keywords[0]}.csv`);
+      saveToCSV(allComments, finalFilename);
     }
   }
+}
+
+test('scrape reddit comments for all keywords', async ({ browser }) => {
+  test.setTimeout(4800000 * searchConfigs.length); // Adjust timeout for all searches
+  
+  const context = await browser.newContext({
+    storageState: path.join(__dirname, 'redditAuth.json')
+  });
+  const page = await context.newPage();
+
+  // Process each search configuration sequentially
+  for (const config of searchConfigs) {
+    await processSearchConfig(page, config);
+    // Add extra delay between different searches to avoid rate limiting
+    await delay(5000);
+  }
+  
+  console.log('\n=== Completed all searches ===\n');
 });
