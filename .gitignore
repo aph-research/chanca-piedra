@@ -19,3 +19,4 @@ tests/reddit_comments_progress_hydrochlorothiazide.csv
 tests/reddit_comments_final_flomax.csv
 tests/reddit_comments_final_chanca.csv
 tests/reddit_comments_final_allopurinol.csv
+*.csv

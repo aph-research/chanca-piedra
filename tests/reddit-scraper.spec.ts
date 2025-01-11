@@ -35,34 +35,34 @@ const searchConfigs: SearchConfig[] = [
   //   keywords: ['tamsulosin'],
   //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=tamsulosin&sort=relevance'
   // },
+  {
+    keywords: ['potassium'],
+    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=%22Potassium+Citrate%22&sort=relevance'
+  },
   // {
-  //   keywords: ['potassium'],
-  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=%22Potassium+Citrate%22&sort=relevance'
+  //   keywords: ['hydrochlorothiazide', 'HCTZ'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=Hydrochlorothiazide&sort=relevance'
   // },
-  {
-    keywords: ['hydrochlorothiazide', 'HCTZ'],
-    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=Hydrochlorothiazide&sort=relevance'
-  },
-  {
-    keywords: ['garcinia'],
-    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=garcinia&sort=relevance'
-  },
-  {
-    keywords: ['hydroxycitric', 'hydroxycitrate'],
-    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=Hydroxycitric&sort=relevance'
-  },
-  {
-    keywords: ['rowatinex'],
-    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=rowatinex&sort=relevance'
-  },
-  {
-    keywords: ['phosfood'],
-    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=phosfood&sort=relevance'
-  },
-  {
-    keywords: ['black'],
-    searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=%22Black+seed%22&sort=relevance'
-  }
+  // {
+  //   keywords: ['garcinia'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=garcinia&sort=relevance'
+  // },
+  // {
+  //   keywords: ['hydroxycitric', 'hydroxycitrate'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=Hydroxycitric&sort=relevance'
+  // },
+  // {
+  //   keywords: ['rowatinex'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=rowatinex&sort=relevance'
+  // },
+  // {
+  //   keywords: ['phosfood'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=phosfood&sort=relevance'
+  // },
+  // {
+  //   keywords: ['black'],
+  //   searchUrl: 'https://www.reddit.com/r/KidneyStones/search/?q=%22Black+seed%22&sort=relevance'
+  // }
 ];
 
 async function delay(ms: number) {
@@ -272,7 +272,7 @@ async function extractCommentsFromPost(
 }
 
 async function processSearchConfig(
-  page: any, 
+  browser: any,  // Changed from page to browser to create multiple pages
   config: SearchConfig
 ): Promise<void> {
   console.log(`\n=== Processing search for keywords: ${config.keywords.join(', ')} ===\n`);
@@ -281,12 +281,18 @@ async function processSearchConfig(
   const progressFilename = `reddit_comments_progress_${config.keywords[0]}.csv`;
   const finalFilename = `reddit_comments_final_${config.keywords[0]}.csv`;
   
+  const context = await browser.newContext({
+    storageState: path.join(__dirname, 'redditAuth.json'),
+    reducedMotion: 'reduce'
+  });
+  const mainPage = await context.newPage();
+  
   try {
-    await page.goto(config.searchUrl);
-    await page.waitForSelector('a[data-testid="post-title-text"]', { timeout: 30000 });
-    await scrollForMoreResults(page);
+    await mainPage.goto(config.searchUrl);
+    await mainPage.waitForSelector('a[data-testid="post-title-text"]', { timeout: 30000 });
+    await scrollForMoreResults(mainPage);
 
-    const posts = await page.$$eval('a[data-testid="post-title-text"]',
+    const posts = await mainPage.$$eval('a[data-testid="post-title-text"]',
       (elements: any[]) => elements.map(el => ({
         url: el.href,
         title: el.textContent.trim()
@@ -294,22 +300,42 @@ async function processSearchConfig(
 
     console.log(`Found ${posts.length} posts to process`);
 
-    for (const post of posts) {
-      try {
-        const comments = await tryWithRetry(() => 
-          extractCommentsFromPost(page, post.url, post.title, config.keywords)
-        );
-        allComments.push(...comments);
-        console.log(`Found ${comments.length} relevant comments in post`);
-        
-        saveToCSV(allComments, progressFilename);
-        await delay(3000);
-      } catch (error) {
-        console.error(`Error processing post ${post.url} after all retries:`, error);
-        continue;
-      }
+    // Process posts in parallel batches
+    const batchSize = 5; // Process 5 posts at a time
+    for (let i = 0; i < posts.length; i += batchSize) {
+      const batch = posts.slice(i, i + batchSize);
+      
+      // Create a new page for each post in the batch
+      const batchPromises = batch.map(async (post) => {
+        const page = await context.newPage();
+        try {
+          const comments = await tryWithRetry(() => 
+            extractCommentsFromPost(page, post.url, post.title, config.keywords)
+          );
+          await page.close();
+          return comments;
+        } catch (error) {
+          console.error(`Error processing post ${post.url} after all retries:`, error);
+          await page.close();
+          return [];
+        }
+      });
+
+      // Wait for all posts in the batch to complete
+      const batchResults = await Promise.all(batchPromises);
+      const newComments = batchResults.flat();
+      allComments.push(...newComments);
+      
+      console.log(`Processed batch of ${batch.length} posts. Found ${newComments.length} new comments.`);
+      saveToCSV(allComments, progressFilename);
+      
+      // Short delay between batches to avoid overwhelming the server
+      await delay(1000);
     }
 
+    await mainPage.close();
+    await context.close();
+    
     saveToCSV(allComments, finalFilename);
     console.log(`Finished processing search for ${config.keywords[0]}. Total comments found: ${allComments.length}`);
 
@@ -318,20 +344,17 @@ async function processSearchConfig(
     if (allComments.length > 0) {
       saveToCSV(allComments, finalFilename);
     }
+    await mainPage.close();
+    await context.close();
   }
 }
 
 test('scrape reddit comments for all keywords', async ({ browser }) => {
-  test.setTimeout(4800000 * searchConfigs.length); // Adjust timeout for all searches
-  
-  const context = await browser.newContext({
-    storageState: path.join(__dirname, 'redditAuth.json')
-  });
-  const page = await context.newPage();
+  test.setTimeout(4800000 * searchConfigs.length);
 
   // Process each search configuration sequentially
   for (const config of searchConfigs) {
-    await processSearchConfig(page, config);
+    await processSearchConfig(browser, config);
     // Add extra delay between different searches to avoid rate limiting
     await delay(5000);
   }
