@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chanca Piedra Analysis Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .plot-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%; /* 4:3 aspect ratio */
+        }
+        .plot-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="w-full p-4">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-6 text-gray-800">Chanca Piedra Analysis Dashboard</h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Plot 1 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-4">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-700">Side Effects Category Distribution</h2>
+                        <div class="plot-container">
+                            <iframe src="side-effects-category-distribution.html" class="plot-frame" title="Side Effects Category Distribution"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plot 2 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-4">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-700">Gastrointestinal Subcategories</h2>
+                        <div class="plot-container">
+                            <iframe src="side-effects-gastrointestinal-subcategories.html" class="plot-frame" title="Gastrointestinal Subcategories"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plot 3 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-4">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-700">Treatment Distribution Rating</h2>
+                        <div class="plot-container">
+                            <iframe src="webmd-treatment-distribution-rating.html" class="plot-frame" title="Treatment Distribution Rating"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
