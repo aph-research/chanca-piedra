@@ -3,61 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chanca Piedra Analysis Dashboard</title>
+    <title>Online Reviews Analysis Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .plot-container {
-            position: relative;
-            width: 100%;
-            padding-top: 75%; /* 4:3 aspect ratio */
-        }
         .plot-frame {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100% !important;
+            min-width: 850px !important;
+            height: 420px;
             border: none;
         }
     </style>
 </head>
 <body class="bg-gray-50">
-    <div class="w-full p-4">
-        <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-6 text-gray-800">Chanca Piedra Analysis Dashboard</h1>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Plot 1 -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="p-4">
-                        <h2 class="text-xl font-semibold mb-4 text-gray-700">Side Effects Category Distribution</h2>
-                        <div class="plot-container">
-                            <iframe src="side-effects-category-distribution.html" class="plot-frame" title="Side Effects Category Distribution"></iframe>
-                        </div>
+    <div class="w-full p-2">
+        <div class="max-w-[850px] mx-auto">
+            <h1 class="text-2xl font-bold mb-4 text-gray-800">Online Reviews Analysis Dashboard</h1>
+            <h2 class="text-xl font-bold my-8 text-gray-800">WebMD Reviews</h2>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden max-w-7xl mx-auto">
+                    <div class="p-2">
+                        <iframe src="webmd-treatment-distribution-rating.html" class="plot-frame" title="Treatment Distribution Rating"></iframe>
                     </div>
                 </div>
+            </div>
 
-                <!-- Plot 2 -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="p-4">
-                        <h2 class="text-xl font-semibold mb-4 text-gray-700">Gastrointestinal Subcategories</h2>
-                        <div class="plot-container">
-                            <iframe src="side-effects-gastrointestinal-subcategories.html" class="plot-frame" title="Gastrointestinal Subcategories"></iframe>
-                        </div>
-                    </div>
+            <div class="flex justify-between items-center mt-12 mb-8">
+                <h2 class="text-xl font-bold text-gray-800">Side Effects (All Reviews)</h2>
+                
+                <!-- Toggle Switch -->
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-medium text-gray-700">Total Count</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="displayToggle" class="sr-only peer" onchange="toggleDisplay()">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                    <span class="text-sm font-medium text-gray-700">Percentage</span>
                 </div>
+            </div>
 
-                <!-- Plot 3 -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="p-4">
-                        <h2 class="text-xl font-semibold mb-4 text-gray-700">Treatment Distribution Rating</h2>
-                        <div class="plot-container">
-                            <iframe src="webmd-treatment-distribution-rating.html" class="plot-frame" title="Treatment Distribution Rating"></iframe>
-                        </div>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden max-w-7xl mx-auto">
+                    <div class="p-2">
+                        <iframe src="side-effects-category-distribution-total-count.html" class="plot-frame count-plot" title="Side Effects Distribution (Total Count)"></iframe>
+                        <iframe src="side-effects-category-distribution-percentage.html" class="plot-frame percentage-plot hidden" title="Side Effects Distribution (Percentage)"></iframe>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleDisplay() {
+            const isPercentage = document.getElementById('displayToggle').checked;
+            const countPlots = document.querySelectorAll('.count-plot');
+            const percentagePlots = document.querySelectorAll('.percentage-plot');
+    
+            if (isPercentage) {
+                countPlots.forEach(plot => plot.classList.add('hidden'));
+                percentagePlots.forEach(plot => {
+                    plot.classList.remove('hidden');
+                    // Reload the iframe
+                    plot.src = plot.src;
+                });
+            } else {
+                percentagePlots.forEach(plot => plot.classList.add('hidden'));
+                countPlots.forEach(plot => {
+                    plot.classList.remove('hidden');
+                    // Reload the iframe
+                    plot.src = plot.src;
+                });
+            }
+        }
+    </script>
 </body>
 </html>
