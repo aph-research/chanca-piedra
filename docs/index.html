@@ -12,6 +12,13 @@
             height: 420px;
             border: none;
         }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1em;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -41,11 +48,40 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-4">
+            <!-- Main Category Distribution -->
+            <div class="grid grid-cols-1 gap-4 mb-8">
                 <div class="bg-white rounded-lg shadow-md overflow-hidden max-w-7xl mx-auto">
                     <div class="p-2">
                         <iframe src="side-effects-category-distribution-total-count.html" class="plot-frame count-plot" title="Side Effects Distribution (Total Count)"></iframe>
                         <iframe src="side-effects-category-distribution-percentage.html" class="plot-frame percentage-plot hidden" title="Side Effects Distribution (Percentage)"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Selector and Subcategory Plots -->
+            <div class="flex items-center gap-4 mb-8">
+                <label for="categorySelect" class="text-lg font-semibold text-gray-800">Category Details:</label>
+                <select id="categorySelect" class="block w-64 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select a category</option>
+                    <option value="cardiovascular">Cardiovascular</option>
+                    <option value="endocrine-metabolic">Endocrine/Metabolic</option>
+                    <option value="gastrointestinal">Gastrointestinal</option>
+                    <option value="mood-mental">Mood/Mental</option>
+                    <option value="neurological-cognitive">Neurological/Cognitive</option>
+                    <option value="other">Other</option>
+                    <option value="pain">Pain</option>
+                    <option value="respiratory">Respiratory</option>
+                    <option value="skin-allergic">Skin/Allergic</option>
+                    <option value="sleep-fatigue">Sleep/Fatigue</option>
+                    <option value="urinary-sexual">Urinary/Sexual</option>
+                </select>
+            </div>
+
+            <!-- Subcategory Plots Container -->
+            <div id="subcategoryPlots" class="grid grid-cols-1 gap-4 hidden">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden max-w-7xl mx-auto">
+                    <div class="p-2">
+                        <!-- Subcategory plots will be dynamically loaded here -->
                     </div>
                 </div>
             </div>
@@ -62,18 +98,39 @@
                 countPlots.forEach(plot => plot.classList.add('hidden'));
                 percentagePlots.forEach(plot => {
                     plot.classList.remove('hidden');
-                    // Reload the iframe
                     plot.src = plot.src;
                 });
             } else {
                 percentagePlots.forEach(plot => plot.classList.add('hidden'));
                 countPlots.forEach(plot => {
                     plot.classList.remove('hidden');
-                    // Reload the iframe
                     plot.src = plot.src;
                 });
             }
+
+            // Update subcategory plot if one is selected
+            updateSubcategoryPlot();
         }
+
+        function updateSubcategoryPlot() {
+            const category = document.getElementById('categorySelect').value;
+            const container = document.getElementById('subcategoryPlots');
+            const plotContainer = container.querySelector('.p-2');
+            const isPercentage = document.getElementById('displayToggle').checked;
+            const metric = isPercentage ? 'percentage' : 'total-count';
+
+            if (category) {
+                container.classList.remove('hidden');
+                const plotPath = `side-effects-${category}-subcategories-${metric}.html`;
+                plotContainer.innerHTML = `<iframe src="${plotPath}" class="plot-frame" title="Subcategory Distribution"></iframe>`;
+            } else {
+                container.classList.add('hidden');
+                plotContainer.innerHTML = '';
+            }
+        }
+
+        // Add event listener for category select
+        document.getElementById('categorySelect').addEventListener('change', updateSubcategoryPlot);
     </script>
 </body>
 </html>
