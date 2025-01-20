@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* All the same styles as before */
+        body {
+            margin: 0;
+            padding: 0px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 0rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            max-height: 100vh;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.65rem;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        thead th {
+            background-color: #f9fafb;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+        th {
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background-color: #f9fafb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        tbody th {
+            font-weight: 500;
+            color: #111827;
+            background-color: #f9fafb;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            text-align: left;
+            padding: 0.5rem 1rem;
+            font-size: 0.65rem;
+        }
+
+        tbody th:contains("<b>") {
+            font-weight: 600;
+            color: #1f2937;
+            padding-top: 1rem;
+        }
+
+        tbody th {
+            text-transform: none;
+        }
+
+        td:not(:first-child):not(:empty) {
+            text-align: right;
+        }
+
+        tr:not(:first-child) td:not(:empty):after {
+            content: "%";
+        }
+
+        tr:first-child td:not(:empty) {
+            font-weight: 600;
+        }
+
+        tr:first-child td:not(:empty):after {
+            content: none;
+        }
+
+        /* Header row */
+        thead tr {
+            background-color: #f9fafb !important;
+        }
+
+        /* Total Reviews row (first row in tbody) */
+        tbody tr:first-child {
+            background-color: #ffffff;
+        }
+
+        /* Every 4th row starting from the section headers */
+        tbody tr:nth-child(n+2):nth-child(4n+2) {
+            background-color: #f9fafb;  /* Grey - section headers */
+        }
+
+        /* The three rows following each section header */
+        tbody tr:nth-child(n+3):nth-child(4n+3),
+        tbody tr:nth-child(n+4):nth-child(4n+4),
+        tbody tr:nth-child(n+5):nth-child(4n+1) {
+            background-color: #ffffff;  /* White - Yes/No/No information rows */
+        }
+    </style>
+    <script>
+        // Function to clean up HTML tags and load the table
+// Function to clean up HTML tags and load the table
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tableName = urlParams.get('table');
+        
+        if (tableName) {
+            const iframe = document.createElement('iframe');
+            iframe.src = tableName + '.html';
+            iframe.onload = function() {
+                // Get the table from the iframe
+                const table = (this.contentWindow.document.body||this.contentWindow.document).children[0];
+                this.before(table);
+                this.remove();
+                
+                // Clean up HTML tags
+                const cells = document.querySelectorAll('th');
+                cells.forEach(cell => {
+                    if (cell.textContent.includes('<b>')) {
+                        cell.textContent = cell.textContent.replace(/<\/?b>/g, '');
+                    }
+                    // Right-align specific rows
+                    const text = cell.textContent.trim();
+                    if (text === 'Yes' || text === 'No' || text === 'No information') {
+                        cell.style.textAlign = 'right';
+                        cell.style.paddingRight = '2rem';
+                    }
+                });
+            };
+            document.querySelector('.table-container').appendChild(iframe);
+        }
+    };
+    </script>
+</head>
+<body>
+    <div class="table-container">
+    </div>
+</body>
+</html>
