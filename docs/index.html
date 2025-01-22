@@ -75,57 +75,60 @@
             <!-- Summary Statistics Table -->
             <div class="flex justify-between items-center my-8">
                 <h3 class="text-lg font-bold text-gray-800">Summary of Statistics</h3>
-                <!-- Toggle Switch for WebMD -->
                 <div class="flex items-center gap-4">
-                    <span class="text-sm font-medium text-gray-700">All Reviews</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="webmdQualityToggle" class="sr-only peer" onchange="toggleQualityTable('webmd')">
-                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                    <span class="text-sm font-medium text-gray-700">High Quality Only</span>
+                    <select id="webmdTableSelect" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Reviews</option>
+                        <option value="high-quality">Very High Quality Reviews Only</option>
+                        <option value="long-time">Long-Term Patients Only</option>
+                        <option value="stoner">Patients With Many Stones Only</option>
+                    </select>
                 </div>
             </div>
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <iframe src="table-wrapper.html?table=webmd-table-full-analysis" class="w-full h-[800px] border-none webmd-table all-reviews"></iframe>
-                <iframe src="table-wrapper.html?table=webmd-table-full-analysis-high-quality" class="w-full h-[800px] border-none webmd-table high-quality hidden"></iframe>
+                <iframe src="table-wrapper.html?table=webmd-table-full-analysis" class="w-full h-[800px] border-none webmd-table" data-table-type="all"></iframe>
+                <iframe src="table-wrapper.html?table=webmd-table-full-analysis-high-quality" class="w-full h-[800px] border-none webmd-table hidden" data-table-type="high-quality"></iframe>
+                <iframe src="table-wrapper.html?table=webmd-table-full-analysis-long-time" class="w-full h-[800px] border-none webmd-table hidden" data-table-type="long-time"></iframe>
+                <iframe src="table-wrapper.html?table=webmd-table-full-analysis-stoner" class="w-full h-[800px] border-none webmd-table hidden" data-table-type="stoner"></iframe>
             </div>
 
             <!-- Amazon Reviews Section -->
             <h2 class="text-xl font-bold my-8 text-gray-800">Amazon Reviews</h2>
             <div class="flex justify-between items-center my-8">
                 <h3 class="text-lg font-bold text-gray-800">Summary of Statistics</h3>
-                <!-- Toggle Switch for Amazon -->
                 <div class="flex items-center gap-4">
-                    <span class="text-sm font-medium text-gray-700">All Reviews</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="amazonQualityToggle" class="sr-only peer" onchange="toggleQualityTable('amazon')">
-                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                    <span class="text-sm font-medium text-gray-700">High Quality Only</span>
+                    <select id="amazonTableSelect" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Reviews</option>
+                        <option value="high-quality">Very High Quality Reviews Only</option>
+                        <option value="long-time">Long-Term Patients Only</option>
+                        <option value="stoner">Patients With Many Stones Only</option>
+                    </select>
                 </div>
             </div>
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <iframe src="table-wrapper.html?table=amazon-table-full-analysis" class="w-full h-[800px] border-none amazon-table all-reviews"></iframe>
-                <iframe src="table-wrapper.html?table=amazon-table-full-analysis-high-quality" class="w-full h-[800px] border-none amazon-table high-quality hidden"></iframe>
+                <iframe src="table-wrapper.html?table=amazon-table-full-analysis" class="w-full h-[800px] border-none amazon-table" data-table-type="all"></iframe>
+                <iframe src="table-wrapper.html?table=amazon-table-full-analysis-high-quality" class="w-full h-[800px] border-none amazon-table hidden" data-table-type="high-quality"></iframe>
+                <iframe src="table-wrapper.html?table=amazon-table-full-analysis-long-time" class="w-full h-[800px] border-none amazon-table hidden" data-table-type="long-time"></iframe>
+                <iframe src="table-wrapper.html?table=amazon-table-full-analysis-stoner" class="w-full h-[800px] border-none amazon-table hidden" data-table-type="stoner"></iframe>
             </div>
 
             <!-- Reddit Reviews Section -->
             <h2 class="text-xl font-bold my-8 text-gray-800">Reddit Reviews</h2>
             <div class="flex justify-between items-center my-8">
                 <h3 class="text-lg font-bold text-gray-800">Summary of Statistics</h3>
-                <!-- Toggle Switch for Reddit -->
                 <div class="flex items-center gap-4">
-                    <span class="text-sm font-medium text-gray-700">All Reviews</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="redditQualityToggle" class="sr-only peer" onchange="toggleQualityTable('reddit')">
-                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                    <span class="text-sm font-medium text-gray-700">High Quality Only</span>
+                    <select id="redditTableSelect" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Reviews</option>
+                        <option value="high-quality">Very High Quality Reviews Only</option>
+                        <option value="long-time">Long-Term Patients Only</option>
+                        <option value="stoner">Patients With Many Stones Only</option>
+                    </select>
                 </div>
             </div>
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <iframe src="table-wrapper.html?table=reddit-table-full-analysis" class="w-full h-[800px] border-none reddit-table all-reviews"></iframe>
-                <iframe src="table-wrapper.html?table=reddit-table-full-analysis-high-quality" class="w-full h-[800px] border-none reddit-table high-quality hidden"></iframe>
+                <iframe src="table-wrapper.html?table=reddit-table-full-analysis" class="w-full h-[800px] border-none reddit-table" data-table-type="all"></iframe>
+                <iframe src="table-wrapper.html?table=reddit-table-full-analysis-high-quality" class="w-full h-[800px] border-none reddit-table hidden" data-table-type="high-quality"></iframe>
+                <iframe src="table-wrapper.html?table=reddit-table-full-analysis-long-time" class="w-full h-[800px] border-none reddit-table hidden" data-table-type="long-time"></iframe>
+                <iframe src="table-wrapper.html?table=reddit-table-full-analysis-stoner" class="w-full h-[800px] border-none reddit-table hidden" data-table-type="stoner"></iframe>
             </div>
 
             <div class="flex justify-between items-center my-8">
@@ -220,7 +223,20 @@
     </div>
 
     <script>
-        // Previous functions remain unchanged
+        function switchTable(source) {
+            const selectedValue = document.getElementById(`${source}TableSelect`).value;
+            const tables = document.querySelectorAll(`.${source}-table`);
+            
+            tables.forEach(table => {
+                if (table.getAttribute('data-table-type') === selectedValue) {
+                    table.classList.remove('hidden');
+                    // Refresh iframe content
+                    table.src = table.src;
+                } else {
+                    table.classList.add('hidden');
+                }
+            });
+        }
         function toggleDisplay() {
             const isPercentage = document.getElementById('displayToggle').checked;
             const countPlots = document.querySelectorAll('.count-plot');
@@ -274,28 +290,12 @@
             }
         }
 
-        // New function to toggle between all reviews and high quality reviews
-        function toggleQualityTable(source) {
-            const isHighQuality = document.getElementById(`${source}QualityToggle`).checked;
-            const allReviewsTable = document.querySelector(`.${source}-table.all-reviews`);
-            const highQualityTable = document.querySelector(`.${source}-table.high-quality`);
-            
-            if (isHighQuality) {
-                allReviewsTable.classList.add('hidden');
-                highQualityTable.classList.remove('hidden');
-                // Refresh iframe content
-                highQualityTable.src = highQualityTable.src;
-            } else {
-                highQualityTable.classList.add('hidden');
-                allReviewsTable.classList.remove('hidden');
-                // Refresh iframe content
-                allReviewsTable.src = allReviewsTable.src;
-            }
-        }
-
         // Add event listeners
         document.getElementById('categorySelect').addEventListener('change', updateSubcategoryPlot);
         document.getElementById('treatmentSelect').addEventListener('change', updateTreatmentPlot);
+        document.getElementById('webmdTableSelect').addEventListener('change', () => switchTable('webmd'));
+        document.getElementById('amazonTableSelect').addEventListener('change', () => switchTable('amazon'));
+        document.getElementById('redditTableSelect').addEventListener('change', () => switchTable('reddit'));
     </script>
 </div>
 </body>
